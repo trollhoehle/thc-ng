@@ -7,14 +7,13 @@ var express = require('express')
   , routes = require('./routes')
   , user = require('./routes/user')
   , ambience = require('./routes/ambience')
-  , hexaswitch = require('./routes/hexaswitch')
   , http = require('http')
   , path = require('path')
   , light = require('./lib/light')
   , audio = require('./routes/audio')
   , audiosample = require('./lib/audiosample')
   , MPD = require('./lib/node-mpd/lib/')
-
+  , blaulicht = require('./lib/baulicht.js')
 var app = express();
 
 app.configure(function(){
@@ -45,6 +44,9 @@ app.get('/', ambience.color);
 var PadKontrol = require('./lib/padkontrol')
 var padkontrol = new PadKontrol(2, 2)
 
+var klingelblaulicht = blaulicht.Blaulicht()
+klingelblaulicht.set("aaaa::50:c4ff:fe04:828e")
+
 padkontrol.on('pad_timer', function(pad, pressedTime, vel) {
   if (pad < 8) {
     var color = light.getMainColor();
@@ -68,7 +70,7 @@ padkontrol.on('pad', function(pad, pressed, vel) {
   if (pressed && pad == 9) audiosample.play('miau/mooh.wav', vel / 127.0);
   if (pressed && pad == 12) audiosample.play('miau/poettering.wav', vel   / 127.0);
 
-  if (pad == 13) hexaswitch.switch("aaaa::50:c4ff:fe04:828e", pressed);
+  if (pad == 13) klingelblaulicht.set(pressed);
 })
 
 padkontrol.on('button', function(button, pressed) {
